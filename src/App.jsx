@@ -57,8 +57,9 @@ export default function App() {
   const updateApartment = roomMode ? roomUpdate : privateUpdate
   const deleteApartment = roomMode ? roomDelete : privateDelete
 
-  // Can edit in room mode: must be logged in + room access is 'edit'
-  const canEdit = !roomMode || (user && room?.access === 'edit')
+  // Can edit: always true for private tracker.
+  // In room mode: optimistic (true while loading), false only if confirmed view-only.
+  const canEdit = !roomMode || roomLoading || Boolean(user && room?.access === 'edit')
 
   // UI state
   const [panelOpen, setPanelOpen] = useState(false)
