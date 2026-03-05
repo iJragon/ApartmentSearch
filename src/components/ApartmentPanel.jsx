@@ -6,6 +6,7 @@ const DEFAULTS = {
   sqft: '', amenities: [], pros: [], cons: [], notes: '',
   status: 'considering', rating: 0, listingUrl: '',
   moveInDate: '', leaseLength: '', contact: '',
+  toured: false, tourNotes: '',
 }
 
 function StarPicker({ value, onChange }) {
@@ -243,6 +244,27 @@ export default function ApartmentPanel({ apartment, onSave, onClose }) {
                 rows={4}
                 className={INPUT_CLASS + ' resize-none'}
               />
+            </Section>
+
+            <Section title="Tour">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.toured ?? false}
+                  onChange={e => set('toured', e.target.checked)}
+                  className="w-4 h-4 accent-indigo-500 rounded shrink-0"
+                />
+                <span className="text-sm text-slate-300">I've toured this apartment</span>
+              </label>
+              {form.toured && (
+                <textarea
+                  value={form.tourNotes}
+                  onChange={e => set('tourNotes', e.target.value)}
+                  placeholder="How did it feel? Anything that stood out — good or bad?"
+                  rows={4}
+                  className={INPUT_CLASS + ' resize-none mt-2'}
+                />
+              )}
             </Section>
 
           </div>

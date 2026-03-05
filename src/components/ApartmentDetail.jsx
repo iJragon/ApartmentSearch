@@ -182,6 +182,23 @@ export default function ApartmentDetail({ apartment, onEdit, onDelete, onClose, 
             </div>
           )}
 
+          {/* Tour */}
+          <div>
+            <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest mb-2">Tour</p>
+            {apartment.toured ? (
+              <>
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-500/10 ring-1 ring-emerald-500/20 px-2 py-1 rounded-md mb-2">
+                  ✓ Toured
+                </span>
+                {apartment.tourNotes && (
+                  <p className="text-sm text-slate-400 whitespace-pre-wrap leading-relaxed mt-2">{apartment.tourNotes}</p>
+                )}
+              </>
+            ) : (
+              <span className="text-xs text-slate-600">Not yet toured</span>
+            )}
+          </div>
+
         </div>
 
         {/* Footer */}

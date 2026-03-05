@@ -1,20 +1,17 @@
 export const AMENITIES = [
   { key: 'parking', label: 'Parking' },
   { key: 'gym', label: 'Gym' },
+  { key: 'pool', label: 'Pool' },
   { key: 'laundry_in_unit', label: 'In-Unit Laundry' },
   { key: 'laundry_shared', label: 'Shared Laundry' },
   { key: 'pet_friendly', label: 'Pet Friendly' },
   { key: 'dishwasher', label: 'Dishwasher' },
   { key: 'ac', label: 'A/C' },
-  { key: 'balcony', label: 'Balcony/Patio' },
+  { key: 'balcony', label: 'Balcony / Patio' },
   { key: 'utilities_included', label: 'Utilities Included' },
-  { key: 'storage', label: 'Storage' },
-  { key: 'rooftop', label: 'Rooftop Access' },
-  { key: 'concierge', label: 'Concierge' },
-  { key: 'pool', label: 'Pool' },
-  { key: 'hardwood', label: 'Hardwood Floors' },
-  { key: 'high_ceilings', label: 'High Ceilings' },
-  { key: 'elevator', label: 'Elevator' },
+  { key: 'furnished', label: 'Furnished' },
+  { key: 'ev_charging', label: 'EV Charging' },
+  { key: 'walk_in_closet', label: 'Walk-in Closet' },
 ]
 
 export const STATUS_CONFIG = {
