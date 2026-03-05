@@ -260,7 +260,7 @@ export default function ApartmentPanel({ apartment, onSave, onClose }) {
                 <textarea
                   value={form.tourNotes}
                   onChange={e => set('tourNotes', e.target.value)}
-                  placeholder="How did it feel? Anything that stood out — good or bad?"
+                  placeholder="How did it feel? What stood out, good or bad?"
                   rows={4}
                   className={INPUT_CLASS + ' resize-none mt-2'}
                 />
