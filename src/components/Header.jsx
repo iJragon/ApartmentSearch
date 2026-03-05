@@ -12,7 +12,7 @@ export default function Header({ count, onAdd, onExport, onImport, user, profile
     <header className="sticky top-0 z-10 bg-slate-950/80 backdrop-blur-xl border-b border-white/[0.06]">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-base font-semibold text-white tracking-tight">🏠 Apartment Tracker</h1>
+          <h1 className="text-base font-semibold text-white tracking-tight">🏠 Apartment Searcher</h1>
           <p className="text-xs text-slate-500 mt-0.5">
             {roomMode ? 'Shared room' : `${count} apartment${count !== 1 ? 's' : ''} saved`}
           </p>

@@ -140,7 +140,7 @@ export default function ShareModal({ user, apartments = [], onClose }) {
                 <label className="block text-xs font-medium text-slate-500 mb-2">Start with</label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { value: 'import', label: 'My tracker', desc: `Copy all ${apartments.length} apartment${apartments.length !== 1 ? 's' : ''}` },
+                    { value: 'import', label: 'My searcher', desc: `Copy all ${apartments.length} apartment${apartments.length !== 1 ? 's' : ''}` },
                     { value: 'fresh', label: 'Fresh room', desc: 'Start with nothing' },
                   ].map(opt => (
                     <button

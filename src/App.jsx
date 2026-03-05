@@ -155,7 +155,7 @@ export default function App() {
         <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
           <div className="text-4xl mb-4">🔗</div>
           <h1 className="text-xl font-bold text-white mb-2">You've been invited to a shared room</h1>
-          <p className="text-sm text-slate-400 mb-6">Sign in or create an account to view this apartment tracker.</p>
+          <p className="text-sm text-slate-400 mb-6">Sign in or create an account to view this apartment searcher.</p>
           <button
             onClick={() => setShowAuth(true)}
             className="px-6 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors"
@@ -178,7 +178,7 @@ export default function App() {
         <h1 className="text-xl font-bold text-white mb-2">Room not found</h1>
         <p className="text-sm text-slate-400 mb-6">{roomError}</p>
         <button onClick={leaveRoom} className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
-          ← Go to my tracker
+          ← Go to my searcher
         </button>
       </div>
     )

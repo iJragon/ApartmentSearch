@@ -97,7 +97,7 @@ export default function RoomBanner({ room, isOwner, onToggleAccess, onLeave, onD
             onClick={onLeave}
             className="text-xs text-slate-500 hover:text-slate-300 hover:bg-white/5 px-2.5 py-1.5 rounded-lg transition-all"
           >
-            ← My tracker
+            ← My searcher
           </button>
         </div>
       </div>
