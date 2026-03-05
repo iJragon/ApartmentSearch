@@ -9,6 +9,10 @@ function generateRoomId() {
   return Math.random().toString(36).slice(2, 10)
 }
 
+function rowToApartment(row) {
+  return { ...row.data, id: row.id, addedBy: row.added_by_name }
+}
+
 export function useRoom(roomId, user) {
   const [room, setRoom] = useState(null)
   const [apartments, setApartments] = useState([])
@@ -53,7 +57,7 @@ export function useRoom(roomId, user) {
       .order('created_at', { ascending: false })
 
     if (!error && data) {
-      setApartments(data.map(row => ({ ...row.data, id: row.id, addedBy: row.added_by_name, roomRowId: row.id })))
+      setApartments(data.map(rowToApartment))
     }
     setLoading(false)
   }
@@ -66,39 +70,34 @@ export function useRoom(roomId, user) {
         schema: 'public',
         table: 'room_apartments',
         filter: `room_id=eq.${roomId}`,
-      }, payload => {
-        const row = payload.new
-        setApartments(prev => {
-          if (prev.some(a => a.id === row.id)) return prev
-          return [{ ...row.data, id: row.id, addedBy: row.added_by_name, roomRowId: row.id }, ...prev]
-        })
+      }, ({ new: row }) => {
+        setApartments(prev =>
+          prev.some(a => a.id === row.id) ? prev : [rowToApartment(row), ...prev]
+        )
       })
       .on('postgres_changes', {
         event: 'UPDATE',
         schema: 'public',
         table: 'room_apartments',
         filter: `room_id=eq.${roomId}`,
-      }, payload => {
-        const row = payload.new
-        setApartments(prev =>
-          prev.map(a => a.id === row.id ? { ...row.data, id: row.id, addedBy: row.added_by_name, roomRowId: row.id } : a)
-        )
+      }, ({ new: row }) => {
+        setApartments(prev => prev.map(a => a.id === row.id ? rowToApartment(row) : a))
       })
       .on('postgres_changes', {
         event: 'DELETE',
         schema: 'public',
         table: 'room_apartments',
         filter: `room_id=eq.${roomId}`,
-      }, payload => {
-        setApartments(prev => prev.filter(a => a.id !== payload.old.id))
+      }, ({ old: row }) => {
+        setApartments(prev => prev.filter(a => a.id !== row.id))
       })
       .on('postgres_changes', {
         event: 'UPDATE',
         schema: 'public',
         table: 'rooms',
         filter: `id=eq.${roomId}`,
-      }, payload => {
-        setRoom(payload.new)
+      }, ({ new: row }) => {
+        setRoom(row)
       })
       .subscribe()
 
@@ -117,41 +116,78 @@ export function useRoom(roomId, user) {
       createdAt: now, updatedAt: now,
       ...data,
     }
+    const addedBy = user.profile?.display_name ?? 'Unknown'
+
+    // Optimistic update — show immediately for the person who added it
+    setApartments(prev => [{ ...apartment, addedBy }, ...prev])
 
     const { error } = await supabase.from('room_apartments').insert({
       id,
       room_id: roomId,
       added_by: user.id,
-      added_by_name: user.profile?.display_name ?? 'Unknown',
+      added_by_name: addedBy,
       data: apartment,
     })
-    if (error) throw error
+
+    if (error) {
+      // Roll back optimistic update on failure
+      setApartments(prev => prev.filter(a => a.id !== id))
+      throw error
+    }
   }
 
   async function updateApartment(id, changes) {
     if (!user) throw new Error('Must be logged in')
     const existing = apartments.find(a => a.id === id)
     if (!existing) return
-    const updated = { ...existing, ...changes, updatedAt: new Date().toISOString() }
-    const { addedBy, roomRowId, ...apartmentData } = updated
+
+    const { addedBy, ...rest } = existing
+    const updated = { ...rest, ...changes, updatedAt: new Date().toISOString() }
+
+    // Optimistic update
+    setApartments(prev => prev.map(a => a.id === id ? { ...updated, addedBy } : a))
 
     const { error } = await supabase
       .from('room_apartments')
-      .update({ data: apartmentData, updated_at: new Date().toISOString() })
+      .update({ data: updated, updated_at: updated.updatedAt })
       .eq('id', id)
-    if (error) throw error
+
+    if (error) {
+      // Roll back
+      setApartments(prev => prev.map(a => a.id === id ? existing : a))
+      throw error
+    }
   }
 
   async function deleteApartment(id) {
     if (!user) throw new Error('Must be logged in')
+    const existing = apartments.find(a => a.id === id)
+
+    // Optimistic update
+    setApartments(prev => prev.filter(a => a.id !== id))
+
     const { error } = await supabase.from('room_apartments').delete().eq('id', id)
-    if (error) throw error
+
+    if (error) {
+      // Roll back
+      setApartments(prev => existing ? [existing, ...prev] : prev)
+      throw error
+    }
   }
 
   async function updateAccess(access) {
     if (!user || room?.owner_id !== user.id) throw new Error('Only the room owner can change access')
+
+    // Optimistic update
+    setRoom(prev => ({ ...prev, access }))
+
     const { error } = await supabase.from('rooms').update({ access }).eq('id', roomId)
-    if (error) throw error
+
+    if (error) {
+      // Roll back
+      setRoom(prev => ({ ...prev, access: access === 'edit' ? 'view' : 'edit' }))
+      throw error
+    }
   }
 
   return { room, apartments, loading, error, addApartment, updateApartment, deleteApartment, updateAccess }
