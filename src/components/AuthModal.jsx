@@ -19,7 +19,7 @@ export default function AuthModal({ onAuth, onClose }) {
     e.preventDefault()
     setError(null)
     const trimmed = username.trim()
-    if (tab === 'register') {
+    if (tab === 'register' && !trimmed.includes('@')) {
       const validationError = validateUsername(trimmed)
       if (validationError) { setError(validationError); return }
     }
@@ -72,7 +72,7 @@ export default function AuthModal({ onAuth, onClose }) {
             type="text"
             value={username}
             onChange={e => setUsername(e.target.value)}
-            placeholder="Username"
+            placeholder={tab === 'login' ? 'Username or email' : 'Username'}
             required
             autoComplete="username"
             className={INPUT_CLASS}

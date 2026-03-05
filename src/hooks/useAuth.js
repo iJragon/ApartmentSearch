@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
-function toEmail(username) {
-  return `${username.toLowerCase()}@apartment-searcher.local`
+function toEmail(usernameOrEmail) {
+  if (usernameOrEmail.includes('@')) return usernameOrEmail
+  return `${usernameOrEmail.toLowerCase()}@apartment-searcher.local`
 }
 
 export function useAuth() {
