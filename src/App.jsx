@@ -75,7 +75,7 @@ export default function App() {
 
   // Can edit: always true for private tracker.
   // In room mode: optimistic (true while loading), false only if confirmed view-only.
-  const canEdit = !roomMode || roomLoading || Boolean(user && room?.access === 'edit')
+  const canEdit = !roomMode || roomLoading || Boolean(user && (room?.access === 'edit' || user.id === room?.owner_id))
 
   // UI state
   const [panelOpen, setPanelOpen] = useState(false)
