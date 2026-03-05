@@ -178,6 +178,7 @@ export default function App() {
         onSignOut={signOut}
         onShare={handleShareClick}
         roomMode={roomMode}
+        canEdit={canEdit}
       />
 
       {roomMode && room && (

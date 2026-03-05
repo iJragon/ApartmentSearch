@@ -69,8 +69,8 @@ export function useRoom(roomId, user) {
         event: 'INSERT',
         schema: 'public',
         table: 'room_apartments',
-        filter: `room_id=eq.${roomId}`,
       }, ({ new: row }) => {
+        if (row.room_id !== roomId) return
         setApartments(prev =>
           prev.some(a => a.id === row.id) ? prev : [rowToApartment(row), ...prev]
         )
@@ -79,24 +79,24 @@ export function useRoom(roomId, user) {
         event: 'UPDATE',
         schema: 'public',
         table: 'room_apartments',
-        filter: `room_id=eq.${roomId}`,
       }, ({ new: row }) => {
+        if (row.room_id !== roomId) return
         setApartments(prev => prev.map(a => a.id === row.id ? rowToApartment(row) : a))
       })
       .on('postgres_changes', {
         event: 'DELETE',
         schema: 'public',
         table: 'room_apartments',
-        filter: `room_id=eq.${roomId}`,
       }, ({ old: row }) => {
+        if (row.room_id !== roomId) return
         setApartments(prev => prev.filter(a => a.id !== row.id))
       })
       .on('postgres_changes', {
         event: 'UPDATE',
         schema: 'public',
         table: 'rooms',
-        filter: `id=eq.${roomId}`,
       }, ({ new: row }) => {
+        if (row.id !== roomId) return
         setRoom(row)
       })
       .subscribe()

@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 
-export default function Header({ count, onAdd, onExport, onImport, user, profile, onSignIn, onSignOut, onShare, roomMode }) {
+export default function Header({ count, onAdd, onExport, onImport, user, profile, onSignIn, onSignOut, onShare, roomMode, canEdit }) {
   const fileInputRef = useRef(null)
 
   function handleFileChange(e) {
@@ -69,7 +69,7 @@ export default function Header({ count, onAdd, onExport, onImport, user, profile
             </button>
           )}
 
-          {!roomMode && (
+          {canEdit && (
             <button
               onClick={onAdd}
               className="px-4 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors"
