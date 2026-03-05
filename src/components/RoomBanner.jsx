@@ -1,6 +1,48 @@
 import { useState } from 'react'
 
-export default function RoomBanner({ room, isOwner, onToggleAccess, onLeave, onDelete }) {
+const AVATAR_COLORS = [
+  'bg-indigo-500', 'bg-violet-500', 'bg-pink-500',
+  'bg-emerald-500', 'bg-amber-500', 'bg-sky-500',
+]
+
+function avatarColor(userId) {
+  let hash = 0
+  for (const c of (userId ?? '')) hash = (hash * 31 + c.charCodeAt(0)) & 0xffffffff
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
+}
+
+function initials(name) {
+  return (name ?? '?').split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
+}
+
+function PresenceAvatars({ users }) {
+  const MAX = 4
+  const visible = users.slice(0, MAX)
+  const overflow = users.length - MAX
+
+  return (
+    <div className="flex items-center">
+      <div className="flex -space-x-1.5">
+        {visible.map(u => (
+          <div
+            key={u.userId}
+            title={u.displayName}
+            className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold text-white ring-2 ring-slate-950 shrink-0 ${avatarColor(u.userId)}`}
+          >
+            {initials(u.displayName)}
+          </div>
+        ))}
+        {overflow > 0 && (
+          <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold text-slate-300 bg-slate-700 ring-2 ring-slate-950 shrink-0">
+            +{overflow}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default function RoomBanner({ room, isOwner, onToggleAccess, onLeave, onDelete, presentUsers = [] }) {
   const [copied, setCopied] = useState(false)
   const [toggling, setToggling] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -47,6 +89,8 @@ export default function RoomBanner({ room, isOwner, onToggleAccess, onLeave, onD
             {room.access === 'edit' ? 'Edit access' : 'View only'}
           </span>
         </div>
+
+        {presentUsers.length > 0 && <PresenceAvatars users={presentUsers} />}
 
         <div className="flex items-center gap-2 shrink-0">
           {isOwner && (

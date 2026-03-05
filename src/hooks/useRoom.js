@@ -18,12 +18,14 @@ export function useRoom(roomId, user) {
   const [apartments, setApartments] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [presentUsers, setPresentUsers] = useState([])
   const channelRef = useRef(null)
 
   useEffect(() => {
     if (!roomId) return
     setLoading(true)
     setError(null)
+    setPresentUsers([])
 
     Promise.all([fetchRoom(), fetchApartments()]).then(() => setLoading(false))
     subscribeToRoom()
@@ -93,10 +95,32 @@ export function useRoom(roomId, user) {
         if (row.id !== roomId) return
         setRoom(row)
       })
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState()
+        const seen = new Set()
+        const users = []
+        for (const presences of Object.values(state)) {
+          for (const p of presences) {
+            if (!seen.has(p.userId)) {
+              seen.add(p.userId)
+              users.push({ userId: p.userId, displayName: p.displayName })
+            }
+          }
+        }
+        setPresentUsers(users)
+      })
       .subscribe()
 
     channelRef.current = channel
   }
+
+  useEffect(() => {
+    if (!user || !channelRef.current) return
+    channelRef.current.track({
+      userId: user.id,
+      displayName: user.profile?.display_name ?? user.email ?? 'Unknown',
+    })
+  }, [user?.id])
 
   async function addApartment(data) {
     if (!user) throw new Error('Must be logged in')
@@ -184,7 +208,7 @@ export function useRoom(roomId, user) {
     }
   }
 
-  return { room, apartments, loading, error, addApartment, updateApartment, deleteApartment, updateAccess }
+  return { room, apartments, loading, error, presentUsers, addApartment, updateApartment, deleteApartment, updateAccess }
 }
 
 export async function createRoom(name, access, userId) {

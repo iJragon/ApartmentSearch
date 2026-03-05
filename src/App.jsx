@@ -45,6 +45,7 @@ export default function App() {
     apartments: roomApartments,
     loading: roomLoading,
     error: roomError,
+    presentUsers,
     addApartment: roomAdd,
     updateApartment: roomUpdate,
     deleteApartment: roomDelete,
@@ -199,6 +200,7 @@ export default function App() {
           onToggleAccess={updateAccess}
           onLeave={leaveRoom}
           onDelete={deleteRoom}
+          presentUsers={presentUsers}
         />
       )}
 
