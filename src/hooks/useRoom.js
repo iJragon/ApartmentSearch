@@ -20,6 +20,8 @@ export function useRoom(roomId, user) {
   const [error, setError] = useState(null)
   const [presentUsers, setPresentUsers] = useState([])
   const channelRef = useRef(null)
+  const userRef = useRef(user)
+  useEffect(() => { userRef.current = user })
 
   useEffect(() => {
     if (!roomId) return
@@ -109,11 +111,19 @@ export function useRoom(roomId, user) {
         }
         setPresentUsers(users)
       })
-      .subscribe()
+      .subscribe(async (status) => {
+        if (status !== 'SUBSCRIBED') return
+        const u = userRef.current
+        if (u) await channel.track({
+          userId: u.id,
+          displayName: u.profile?.display_name ?? u.email ?? 'Unknown',
+        })
+      })
 
     channelRef.current = channel
   }
 
+  // Re-track if user auth resolves after channel is already subscribed
   useEffect(() => {
     if (!user || !channelRef.current) return
     channelRef.current.track({
