@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useApartments } from './hooks/useApartments'
 import { useAuth } from './hooks/useAuth'
 import { useRoom } from './hooks/useRoom'
+import { useRoomsList } from './hooks/useRoomsList'
 import Header from './components/Header'
 import FilterBar from './components/FilterBar'
 import ApartmentGrid from './components/ApartmentGrid'
@@ -10,6 +11,7 @@ import ApartmentDetail from './components/ApartmentDetail'
 import AuthModal from './components/AuthModal'
 import ShareModal from './components/ShareModal'
 import RoomBanner from './components/RoomBanner'
+import RoomsSection from './components/RoomsSection'
 
 // Detect ?room= URL param
 function getRoomIdFromUrl() {
@@ -50,6 +52,22 @@ export default function App() {
     deleteApartment: roomDelete,
     updateAccess,
   } = useRoom(urlRoomId, user ? { ...user, profile } : null)
+
+  // Room list (my rooms from Supabase + recently visited from localStorage)
+  const { myRooms, visitedRooms, trackVisit, deleteRoom, removeFromRecent } = useRoomsList(user)
+
+  // Track room visits and clean up dead rooms
+  useEffect(() => {
+    if (roomMode && room) {
+      trackVisit({ id: room.id, name: room.name, access: room.access })
+    }
+  }, [room?.id, room?.name, room?.access])
+
+  useEffect(() => {
+    if (roomMode && roomError && urlRoomId) {
+      removeFromRecent(urlRoomId)
+    }
+  }, [roomError])
 
   // Active data source
   const apartments = roomMode ? roomApartments : privateApartments
@@ -188,6 +206,15 @@ export default function App() {
           isOwner={user?.id === room.owner_id}
           onToggleAccess={updateAccess}
           onLeave={leaveRoom}
+          onDelete={deleteRoom}
+        />
+      )}
+
+      {!roomMode && (
+        <RoomsSection
+          myRooms={myRooms}
+          visitedRooms={visitedRooms}
+          onDelete={deleteRoom}
         />
       )}
 

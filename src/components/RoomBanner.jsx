@@ -1,8 +1,10 @@
 import { useState } from 'react'
 
-export default function RoomBanner({ room, isOwner, onToggleAccess, onLeave }) {
+export default function RoomBanner({ room, isOwner, onToggleAccess, onLeave, onDelete }) {
   const [copied, setCopied] = useState(false)
   const [toggling, setToggling] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   function copyLink() {
     navigator.clipboard.writeText(window.location.href)
@@ -16,6 +18,18 @@ export default function RoomBanner({ room, isOwner, onToggleAccess, onLeave }) {
       await onToggleAccess(room.access === 'edit' ? 'view' : 'edit')
     } finally {
       setToggling(false)
+    }
+  }
+
+  async function handleDelete() {
+    setDeleting(true)
+    try {
+      await onDelete(room.id)
+      onLeave()
+    } catch (err) {
+      alert('Failed to delete room: ' + err.message)
+      setDeleting(false)
+      setConfirmDelete(false)
     }
   }
 
@@ -54,6 +68,31 @@ export default function RoomBanner({ room, isOwner, onToggleAccess, onLeave }) {
           >
             {copied ? 'Copied!' : 'Copy link'}
           </button>
+          {isOwner && !confirmDelete && (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="text-xs text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 px-2.5 py-1.5 rounded-lg transition-all"
+            >
+              Delete room
+            </button>
+          )}
+          {isOwner && confirmDelete && (
+            <>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-2.5 py-1.5 rounded-lg transition-all disabled:opacity-40"
+              >
+                {deleting ? '…' : 'Confirm delete'}
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="text-xs text-slate-500 hover:text-slate-300 hover:bg-white/5 px-2.5 py-1.5 rounded-lg transition-all"
+              >
+                Cancel
+              </button>
+            </>
+          )}
           <button
             onClick={onLeave}
             className="text-xs text-slate-500 hover:text-slate-300 hover:bg-white/5 px-2.5 py-1.5 rounded-lg transition-all"
