@@ -29,7 +29,7 @@ export default function App() {
   const roomMode = Boolean(urlRoomId)
 
   // Auth
-  const { user, profile, loading: authLoading, signUp, signIn, signOut } = useAuth()
+  const { user, profile, loading: authLoading, passwordRecovery, signUp, signIn, signOut, resetPasswordForEmail, updatePassword } = useAuth()
 
   // Private tracker (localStorage)
   const {
@@ -85,6 +85,11 @@ export default function App() {
   const [sort, setSort] = useState('newest')
   const [showAuth, setShowAuth] = useState(false)
   const [showShare, setShowShare] = useState(false)
+  const [showReset, setShowReset] = useState(false)
+
+  useEffect(() => {
+    if (passwordRecovery) setShowReset(true)
+  }, [passwordRecovery])
 
   function handleAdd() {
     if (roomMode && !user) { setShowAuth(true); return }
@@ -153,7 +158,7 @@ export default function App() {
           </button>
         </div>
         {showAuth && (
-          <AuthModal onAuth={{ signIn, signUp }} onClose={() => setShowAuth(false)} />
+          <AuthModal onAuth={{ signIn, signUp, resetPasswordForEmail, updatePassword }} onClose={() => setShowAuth(false)} />
         )}
       </>
     )
@@ -252,7 +257,11 @@ export default function App() {
       )}
 
       {showAuth && (
-        <AuthModal onAuth={{ signIn, signUp }} onClose={() => setShowAuth(false)} />
+        <AuthModal onAuth={{ signIn, signUp, resetPasswordForEmail, updatePassword }} onClose={() => setShowAuth(false)} />
+      )}
+
+      {showReset && (
+        <AuthModal onAuth={{ signIn, signUp, resetPasswordForEmail, updatePassword }} onClose={() => setShowReset(false)} mode="reset" />
       )}
 
       {showShare && user && (
